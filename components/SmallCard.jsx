@@ -1,7 +1,16 @@
 import React from 'react'
 import Image from 'next/image'
+import { useNextSanityImage } from 'next-sanity-image';
+import { sanityClient } from '../sanity';
+
+
 
 const SmallCard = ({img, location, distance}) => {
+    const imageProps = useNextSanityImage(
+		sanityClient,
+		img
+	);
+
     return (
  <div className="flex items-center m-2 mt-5 space-x-4 
  rounded-xl cursor-pointer hover:bg-gray-100 hover:scale-105 
@@ -9,7 +18,7 @@ const SmallCard = ({img, location, distance}) => {
            
        <div className="relative h-16 w-16">
            <Image
-           src={img}
+           {...imageProps}
            layout="fill"
            className="rounded-lg"
            />

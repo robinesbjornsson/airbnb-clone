@@ -1,3 +1,4 @@
+import { sanityClient } from '../sanity.js'
 import Head from 'next/head'
 import Banner from '../components/Banner.jsx'
 import Footer from '../components/Footer.jsx'
@@ -7,6 +8,8 @@ import MediumCard from '../components/MediumCard.jsx'
 import SmallCard from '../components/SmallCard.jsx'
 
 export default function Home({exploreData, cardsData}) {
+  console.log(exploreData, cardsData)
+  
   return (
     <div>
 
@@ -21,12 +24,11 @@ export default function Home({exploreData, cardsData}) {
     <section className="pt-6">
       <h2 className="text-4xl font-semibold pb-5"> Explore Nearby </h2>
 
-      {/* Pull some data from a server - API endpoints */}
      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-     {exploreData?.map(({img, distance, location}) => (
-        <SmallCard key={img} img={img} location={location} distance={distance} />
+     {exploreData?.map(({image, distance, location}) => (
+        <SmallCard key={image} img={image} location={location} distance={distance} />
       ))}
-     </div>
+     </div> 
 
     </section>
 
@@ -34,14 +36,14 @@ export default function Home({exploreData, cardsData}) {
       <h2 className="text-4xl font-semibold py-8"> Live Anywhere</h2>
  
       <div className="flex space-x-3 overflow-scroll scrollbar-hide p-3 -ml-3">
-      {cardsData.map(({img, title}) => (
-        <MediumCard key={img} img={img} title={title}/>
+      {cardsData.map(({image, title}) => (
+        <MediumCard key={image} img={image} title={title}/>
       ))}
-      </div>
+      </div> 
 
     </section>
       <LargeCard 
-      img="https://links.papareact.com/4cj"
+      img="https://a0.muscache.com/im/pictures/2da67c1c-0c61-4629-8798-1d4de1ac9291.jpg?im_w=1440"
       title="The Greatest Outdoors"
       buttonText="Get Inspired"
       />
@@ -58,23 +60,27 @@ export default function Home({exploreData, cardsData}) {
   )
 }
 
+export const getServerSideProps = async () => {
+  const queryOne = '*[ _type == "exploreData" ]'
+  const queryTwo = '*[ _type == "cardsData" ]'
+  
+  const exploreData = await sanityClient.fetch(queryOne)
+  const cardsData = await sanityClient.fetch(queryTwo)
 
-export async function getStaticProps() {
-
-  const exploreData = await fetch('https://links.papareact.com/pyp')
-  .then(
-    (res) => res.json()
-    )
-
-  const cardsData = await fetch('https://links.papareact.com/zp1')
-  .then(
-    (res) => res.json()
-    )
-
-    return{
-     props: {
-      exploreData,
-      cardsData
-    }}
-
+  if (!exploreData.length && !cardsData.length) {
+    return {
+      props: {
+        exploreData: [],
+        cardsData: [],
+      },
+    }
+  } else {
+    return {
+      props: {
+        exploreData,
+        cardsData,
+      },
+    }
+  }
 }
+
